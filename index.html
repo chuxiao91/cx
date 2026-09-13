@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>月中校园墙 - 帖子广场</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
+html,body{min-height:100%;background-color:#f4f5f7;}
+
+/* 开场加载页 */
+#splashPage{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.6s ease;
+}
+
+#splashPage.hide{
+  opacity: 0;
+  pointer-events: none;
+}
+
+.splash-text{
+  font-size: 60px;
+  font-weight: 700;
+  color: #222;
+  letter-spacing: 2px;
+  animation: splashOut 1.8s ease forwards;
+}
+
+@keyframes splashOut{
+  0%{
+    transform: scale(1.8);
+    opacity: 0;
+  }
+  20%{
+    transform: scale(1);
+    opacity: 1;
+  }
+  70%{
+    transform: scale(0.85);
+    opacity: 1;
+  }
+  100%{
+    transform: scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* ---- 头像上传页 ---- */
+#avatarPage{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:#f4f5f7;
+  z-index:998;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:0 24px;
+}
+.avatar-card{
+  width:100%;max-width:360px;
+  background:#fff;border-radius:20px;padding:30px 24px;
+  text-align:center;
+  box-shadow:0 2px 8px rgba(0,0,0,0.08);
+}
+.avatar-card h2{
+  font-size:20px;color:#222;margin-bottom:24px;
+}
+#avatarPreview{
+  width:120px;height:120px;
+  border-radius:50%;
+  object-fit:cover;
+  background:#e8e8ed;
+  margin:0 auto 16px;
+  display:block;
+  border:2px dashed #bbb;
+}
+#avatarInput{display:none;}
+.select-avatar-btn{
+  display:inline-block;
+  padding:10px 20px;
+  background:#ddd;color:#333;
+  border-radius:10px;cursor:pointer;font-size:15px;
+  margin-bottom:12px;
+}
+.enter-main-btn{
+  width:100%;padding:13px;background:#9c27b0;color:#fff;
+  border:none;border-radius:12px;font-size:16px;cursor:pointer;
+  margin-top:8px;
+}
+.enter-main-btn:active{opacity:0.85;}
+
+/* ---- 主帖子页面 ---- */
+#mainPage{display:none;}
+
+.header{
+  position:sticky;top:0;z-index:10;
+  background:#fff;
+  padding:14px 16px 12px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.06);
+  display:flex;justify-content:center;
+}
+.island{
+  background:#222;color:#fff;
+  padding:7px 26px;
+  border-radius:22px;
+  font-size:15px;font-weight:500;
+}
+
+.container{max-width:640px;margin:20px auto;padding:0 16px;}
+
+.post-card{
+  background:#fff;border-radius:16px;padding:18px;margin-bottom:20px;
+  box-shadow:0 1px 3px rgba(0,0,0,0.06);
+}
+.post-card h3{font-size:16px;margin-bottom:12px;color:#333;}
+#authorName{
+  width:100%;padding:12px 14px;border:1px solid #ddd;border-radius:12px;
+  font-size:16px;margin-bottom:12px;outline:none;
+}
+#postContent{
+  width:100%;min-height:110px;padding:12px 14px;border:1px solid #ddd;
+  border-radius:12px;font-size:16px;resize:none;outline:none;
+}
+#publishBtn{
+  width:100%;margin-top:14px;padding:12px;background:#9c27b0;color:#fff;
+  border:none;border-radius:12px;font-size:16px;cursor:pointer;
+}
+#publishBtn:active{opacity:0.85;}
+
+.feed-title{font-size:18px;margin:10px 0 14px;color:#222;}
+.post-item{
+  background:#fff;border-radius:16px;padding:18px;margin-bottom:14px;
+  box-shadow:0 1px 3px rgba(0,0,0,0.06);
+}
+.post-item .author-row{
+  display:flex;align-items:center;gap:8px;margin-bottom:6px;
+}
+.post-item .post-avatar{
+  width:28px;height:28px;border-radius:50%;object-fit:cover;
+  background:#eee;
+}
+.post-item .author{
+  font-size:14px;color:#9c27b0;
+}
+.post-item .pc{font-size:15px;color:#444;line-height:1.6;}
+.post-item .time{font-size:12px;color:#999;margin-top:12px;text-align:right;}
+
+.action-row{
+  display:flex;align-items:center;gap:22px;
+  margin-top:14px;padding-top:12px;
+  border-top:1px solid #f0f0f0;
+}
+.act-btn{
+  display:flex;align-items:center;gap:6px;
+  font-size:15px;color:#666;cursor:pointer;
+  background:none;border:none;user-select:none;
+}
+.act-btn .ic{font-size:19px;line-height:1;}
+.act-btn.liked{color:#e0245e;}
+
+.comment-wrap{margin-top:12px;display:none;}
+.comment-wrap.open{display:block;}
+.new-comment-row{display:flex;gap:8px;margin-bottom:12px;}
+.new-comment-input{
+  flex:1;padding:10px 12px;border:1px solid #ddd;border-radius:12px;
+  font-size:14px;outline:none;
+}
+.send-comment-btn{
+  padding:10px 16px;background:#9c27b0;color:#fff;border:none;
+  border-radius:12px;font-size:14px;cursor:pointer;flex-shrink:0;
+}
+
+.comment-item{
+  background:#f7f7f9;border-radius:10px;padding:10px 12px;margin-bottom:8px;
+}
+.comment-head{
+  display:flex;align-items:center;gap:6px;margin-bottom:4px;
+}
+.comment-name-row{
+  display:flex;align-items:center;gap:6px;
+}
+.comment-name{font-size:12px;color:#9c27b0;}
+.comment-text{font-size:13px;color:#333;line-height:1.5;}
+.comment-time{font-size:11px;color:#999;margin-top:4px;}
+
+.empty-tip{text-align:center;color:#999;padding:40px 0;font-size:15px;}
+</style>
+</head>
+<body>
+
+<!-- 开场加载页 -->
+<div id="splashPage">
+  <div class="splash-text">欢迎加入月中校园墙</div>
+</div>
+
+<div id="avatarPage">
+  <div class="avatar-card">
+    <h2>设置你的头像</h2>
+    <img id="avatarPreview" src="" alt="头像预览">
+    <input type="file" id="avatarInput" accept="image/*">
+    <label for="avatarInput" class="select-avatar-btn">从相册选择图片</label>
+    <br>
+    <button id="goMainBtn" class="enter-main-btn">完成，进入广场</button>
+  </div>
+</div>
+
+<div id="mainPage">
+  <div class="header">
+    <div class="island">月中校园墙</div>
+  </div>
+  <div class="container">
+    <div class="post-card">
+      <h3>发布新帖子</h3>
+      <input id="authorName" placeholder="输入你的昵称（发布人名字）">
+      <textarea id="postContent" placeholder="写下你想说的内容..."></textarea>
+      <button id="publishBtn">发布帖子</button>
+    </div>
+    <div class="feed-title">全部帖子</div>
+    <div id="postList">
+      <div class="empty-tip">还没有帖子，快来发布第一条吧～</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const avatarPage = document.getElementById('avatarPage');
+const mainPage = document.getElementById('mainPage');
+const avatarInput = document.getElementById('avatarInput');
+const avatarPreview = document.getElementById('avatarPreview');
+const goMainBtn = document.getElementById('goMainBtn');
+
+const authorNameInput = document.getElementById('authorName');
+const contentInput = document.getElementById('postContent');
+const publishBtn = document.getElementById('publishBtn');
+const postList = document.getElementById('postList');
+
+let userAvatar = "";
+
+// 压缩头像图片
+function compressImage(file, maxSize = 128, quality = 0.7) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const img = new Image();
+      img.onload = function () {
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        if (w > h) { if (w > maxSize) { h = h * maxSize / w; w = maxSize; } }
+        else { if (h > maxSize) { w = w * maxSize / h; h = maxSize; } }
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// 读取本地保存的头像
+const savedAvatar = localStorage.getItem("local_avatar") || "";
+if(savedAvatar){
+  userAvatar = savedAvatar;
+  avatarPreview.src = userAvatar;
+}
+
+avatarInput.onchange = async function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  try {
+    userAvatar = await compressImage(file);
+    avatarPreview.src = userAvatar;
+    localStorage.setItem("local_avatar", userAvatar);
+  } catch(err) {
+    alert("头像处理失败！");
+    console.error(err);
+  }
+};
+
+goMainBtn.onclick = function(){
+  if(!userAvatar){
+    alert("请先上传头像，才能进入广场！");
+    return;
+  }
+  avatarPage.style.display = "none";
+  mainPage.style.display = "block";
+  render();
+};
+
+function getPosts(){
+  try {
+    return JSON.parse(localStorage.getItem("posts") || "[]");
+  } catch {
+    return [];
+  }
+}
+function savePosts(arr){
+  try {
+    localStorage.setItem("posts", JSON.stringify(arr));
+    return true;
+  } catch (err) {
+    alert("⚠️ 存储已满！无法保存，请清除浏览器缓存后重试");
+    console.error(err);
+    return false;
+  }
+}
+function escapeHtml(str){
+  return (str||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function render(){
+  const arr = getPosts();
+  if(arr.length <= 0){
+    postList.innerHTML = `<div class="empty-tip">还没有帖子，快来发布第一条吧～</div>`;
+    return;
+  }
+  let html = "";
+  arr.forEach(p => {
+    let commentHtml = "";
+    (p.comments || []).forEach((cmt) => {
+      const cmtAvatar = cmt.avatarUrl || "";
+      const cmtName = escapeHtml(cmt.displayName || "游客");
+      commentHtml += `
+      <div class="comment-item">
+        <div class="comment-head">
+          ${cmtAvatar ? `<img class="comment-avatar" src="${escapeHtml(cmtAvatar)}">` : `<div class="comment-avatar"></div>`}
+          <div class="comment-name-row">
+            <span class="comment-name">${cmtName}</span>
+          </div>
+        </div>
+        <div class="comment-text">${escapeHtml(cmt.text)}</div>
+        <div class="comment-time">${escapeHtml(cmt.time)}</div>
+      </div>`;
+    });
+
+    html += `
+    <div class="post-item" data-id="${p.id}">
+      <div class="author-row">
+        ${p.avatarUrl ? `<img class="post-avatar" src="${escapeHtml(p.avatarUrl)}">` : '<div class="post-avatar"></div>'}
+        <div class="author">${escapeHtml(p.displayName)}</div>
+      </div>
+      <div class="pc">${escapeHtml(p.content)}</div>
+      <div class="time">${escapeHtml(p.time)}</div>
+      <div class="action-row">
+        <button class="act-btn" data-act="like">
+          <span class="ic">🤍</span>
+          <span class="like-num">${p.likes||0}</span>
+        </button>
+        <button class="act-btn" data-act="comment">
+          <span class="ic">💬</span>
+          <span class="comment-num">${(p.comments||[]).length}</span>
+        </button>
+      </div>
+      <div class="comment-wrap">
+        <div class="new-comment-row">
+          <input class="new-comment-input" placeholder="发表一条评论">
+          <button class="send-comment-btn">发送</button>
+        </div>
+        <div class="comment-list">${commentHtml}</div>
+      </div>
+    </div>`;
+  });
+  postList.innerHTML = html;
+}
+
+// 单独抽出发布函数，修复点击失效
+function publishPost() {
+  const name = authorNameInput.value.trim();
+  const c = contentInput.value.trim();
+  if (!name) { alert("请输入昵称！"); return; }
+  if (!c) { alert("内容不能为空！"); return; }
+  const now = new Date();
+  const arr = getPosts();
+  arr.unshift({
+    id: Date.now(),
+    displayName: name,
+    avatarUrl: userAvatar,
+    content: c,
+    time: now.toLocaleString(),
+    likes: 0,
+    comments: []
+  });
+  if (savePosts(arr)) {
+    render();
+    authorNameInput.value = "";
+    contentInput.value = "";
+    alert("✅发布成功！");
+  }
+}
+
+publishBtn.onclick = publishPost;
+
+document.addEventListener("click",function(e){
+  const item = e.target.closest(".post-item");
+  if(!item) return;
+  const pid = Number(item.dataset.id);
+  const arr = getPosts();
+  const post = arr.find(x => x.id === pid);
+  if(!post) return;
+
+  if(e.target.closest('[data-act="like"]')){
+    post.likes +=1;
+    savePosts(arr);
+    render();
+  }
+
+  if(e.target.closest('[data-act="comment"]')){
+    item.querySelector(".comment-wrap").classList.toggle("open");
+  }
+
+  if(e.target.closest(".send-comment-btn")){
+    const inp = item.querySelector(".new-comment-input");
+    const txt = inp.value.trim();
+    if(!txt) return;
+    post.comments = post.comments || [];
+    post.comments.push({
+      text: txt,
+      time: new Date().toLocaleString(),
+      displayName: authorNameInput.value.trim() || "游客",
+      avatarUrl: userAvatar
+    });
+    savePosts(arr);
+    render();
+  }
+});
+
+window.addEventListener("load", function(){
+  const splash = document.getElementById("splashPage");
+  setTimeout(function(){
+    splash.classList.add("hide");
+    setTimeout(function(){
+      splash.style.display = "none";
+      // 如果已经有头像，直接进广场
+      if(savedAvatar){
+        userAvatar = savedAvatar;
+        avatarPage.style.display = "none";
+        mainPage.style.display = "block";
+        render();
+      }
+    }, 600);
+  }, 1800);
+});
+</script>
+</body>
+</html>
